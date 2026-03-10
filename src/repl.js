@@ -17,11 +17,21 @@ export const repl = async (homeDirectory) => {
   rl.on('line', (line) => {
     const input = line.trim()
 
-    switch(input){
-
+    // this try catch block need to be tested when some of the commands will be implemented
+    try{
+      switch(input){
+        case '.exit':
+          rl.close()
+          return
+        default: 
+          console.log('Invalid input')
+      }
+    }catch{
+      console.log('Operation failed')
     }
 
     console.log('You are currently in ', directory)
+    rl.prompt()
   })
 
   rl.on('close', () => console.log('Thank you for using Data Processing CLI!'))
