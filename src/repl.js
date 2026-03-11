@@ -15,25 +15,17 @@ export const repl = async (homeDirectory) => {
   console.log('You are currently in ', directory)
   rl.prompt()
 
-  rl.on('line', (line) => {
-    const input = line.trim()
-
-    // this try catch block need to be tested when some of the commands will be implemented
-    try{
-      switch(input){
-        case 'encrypt':
-          encrypt()
-          break
-        case '.exit':
-          rl.close()
-          return
-        default: 
-          console.log('Invalid input')
-          break
-      }
-    }catch{
-      console.log('switch stopped')
-      console.log('Operation failed')
+  rl.on('line', async (line) => {
+    const commandName = line.split(' ')[0]
+    switch(commandName){
+      case 'encrypt':
+        await encrypt(line, directory)
+        break
+      case '.exit':
+        rl.close()
+        return
+      default: 
+        console.log('Invalid input')
     }
 
     console.log('You are currently in ', directory)

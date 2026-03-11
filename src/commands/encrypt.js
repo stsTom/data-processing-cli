@@ -2,23 +2,29 @@ import { finished, pipeline } from "node:stream/promises"
 import { parseArguments } from "../../utils/argParser.js"
 import { resolvePath } from "../../utils/pathResolver.js"
 import fs from 'fs/promises'
+import { createReadStream } from "node:fs"
+import { createWriteStream } from "node:fs"
 import crypto from 'node:crypto'
+import { promisify } from "node:util"
 
-export const encrypt = async () => {
-  const args = await parseArguments()
-  //need to handle a situation with no input
-  //need to accept arguments (argParser?)
+export const encrypt = async (commandLine, currentDir) => {
+  const args = await parseArguments(commandLine)
+  const inputPath = await resolvePath(currentDir, args['--input']) //try adding current working path
+  const outputPath = await resolvePath(currentDir, args['--output'])
+
+  console.log('resolved input ', inputPath)
 
   try{
-    await fs.access(await resolvePath(args['--input']))
+    await fs.access(inputPath)
 
     const salt = crypto.randomBytes(16)
     const iv = crypto.randomBytes(12)
-    const key = crypto.scrypt(args['--password'], salt)
+    const scryptPromise = promisify(crypto.scrypt)
+    const key = await scryptPromise(args['--password'], salt, 32)
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
 
-    const streamSource = await fs.createReadStream(args['--input'])
-    const streamOutput = await fs.createWriteStream(args['--output'])
+    const streamSource = await createReadStream(inputPath)
+    const streamOutput = await createWriteStream(outputPath)
   
     streamOutput.write(salt)
     streamOutput.write(iv)
@@ -35,8 +41,6 @@ export const encrypt = async () => {
   }catch (err){
     console.log(err)
     console.log('Operation failed')
-    // return
-  }finally{
-    console.log('finally')
+    return
   }
 }
