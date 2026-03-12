@@ -7,6 +7,14 @@
       },
       'flags':{}
     },
+    'decrypt':{
+      'required':{
+        '--input': 'string',
+        '--output': 'string',
+        '--password': 'string'
+      },
+      'flags':{}
+    }
   }
 
 export const parseArguments = async (commandLine) => {
@@ -21,6 +29,9 @@ export const parseArguments = async (commandLine) => {
   }
 
   const schema = commandsSchema[command]
+  // console.log(command)
+  // console.log(schema)
+
 
   var result = {}
 

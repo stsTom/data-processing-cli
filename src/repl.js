@@ -1,6 +1,7 @@
 import readline from "node:readline/promises"
 import { stdin, stdout } from "node:process"
 import { encrypt } from "./commands/encrypt.js"
+import { decrypt } from "./commands/decrypt.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -20,6 +21,9 @@ export const repl = async (homeDirectory) => {
     switch(commandName){
       case 'encrypt':
         await encrypt(line, directory)
+        break
+      case 'decrypt':
+        await decrypt(line, directory)
         break
       case '.exit':
         rl.close()

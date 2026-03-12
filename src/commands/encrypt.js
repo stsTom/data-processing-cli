@@ -18,6 +18,7 @@ export const encrypt = async (commandLine, currentDir) => {
 
     const salt = crypto.randomBytes(16)
     const iv = crypto.randomBytes(12)
+    
     const scryptPromise = promisify(crypto.scrypt)
     const key = await scryptPromise(args['--password'], salt, 32)
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
