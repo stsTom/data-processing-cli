@@ -8,13 +8,12 @@ import crypto from 'node:crypto'
 import { promisify } from "node:util"
 
 export const encrypt = async (commandLine, currentDir) => {
-  const args = await parseArguments(commandLine)
-  const inputPath = await resolvePath(currentDir, args['--input']) //try adding current working path
-  const outputPath = await resolvePath(currentDir, args['--output'])
-
-  console.log('resolved input ', inputPath)
 
   try{
+    const args = await parseArguments(commandLine)
+    const inputPath = await resolvePath(currentDir, args['--input'])
+    const outputPath = await resolvePath(currentDir, args['--output'])
+
     await fs.access(inputPath)
 
     const salt = crypto.randomBytes(16)
