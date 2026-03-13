@@ -5,22 +5,20 @@ import readline from "readline"
 const readData = async () =>{
   const data = workerData
   const fileStats = {
-    "total": "number",
+    "total": 0,
     "levels": {
-      "INFO": "number",
-      "WARN": "number",
-      "ERROR": "number"
+      "INFO": 0,
+      "WARN": 0,
+      "ERROR": 0
     },
     "status": {
-      "2xx": "number",
-      "3xx": "number",
-      "4xx": "number",
-      "5xx": "number"
+      "2xx": 0,
+      "3xx": 0,
+      "4xx": 0,
+      "5xx": 0
     },
-    "topPaths": [
-      { "path": "string", "count": "number" }
-    ],
-    "avgResponseTimeMs": "number"
+    "topPaths": [],
+    "avgResponseTimeMs": 0
   }
 
   const stream = fs.createReadStream(data.inputPath, { start: data.start, end: data.end })
@@ -31,7 +29,31 @@ const readData = async () =>{
   })
 
   rl.on('line', (line) =>{
+    fileStats.total += 1
 
+    if (line.includes('INFO') || line.includes("WARN") || line.includes("ERROR")){
+      fileStats.levels[line] += 1
+    }
+
+    fileStats.status[`${Math.floor(parseInt(line.split(' ')[3]/100))}xx`] += 1
+
+    const filePath = line.match(/\s(\/\S*)/)
+    
+    if (filePath){
+      for (let obj of fileStats.topPaths){
+        if (obj.path == filePath){
+          obj.count += 1
+          break;
+        }
+        if (fileStats.topPaths.indexOf(obj) == fileStats.topPaths - 1){
+          fileStats.topPaths.push({"path": filePath, "count": 1})
+        }
+        continue
+      }
+      fileStats.topPaths.push()
+    }
+
+    fileStats.avgResponseTimeMs = line.split(' ')[4]
   })
 
   rl.on('close', () => {
