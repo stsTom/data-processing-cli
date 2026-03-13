@@ -44,15 +44,14 @@ const readData = async () =>{
 
       const pathMatch = line.match(/\s(\/\S*)/);
       if (pathMatch) {
-        const path = pathMatch[1]; // <--- This is your "it" (the path string)
-        
-        // Find if the path already exists in our stats
-        const existingPath = fileStats.topPaths.find(obj => obj.path === path);
+        const path = pathMatch[1]
+
+        const existingPath = fileStats.topPaths.find(obj => obj.path === path)
         
         if (existingPath) {
-          existingPath.count += 1;
+          existingPath.count += 1
         } else {
-          fileStats.topPaths.push({ "path": path, "count": 1 });
+          fileStats.topPaths.push({ "path": path, "count": 1 })
         }
       }
 
@@ -68,5 +67,4 @@ const readData = async () =>{
 }
 
 const finalStats = await readData()
-// console.log(finalStats)
 parentPort.postMessage(finalStats)
