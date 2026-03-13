@@ -3,62 +3,70 @@ import fs from "fs"
 import readline from "readline"
 
 const readData = async () =>{
-  const data = workerData
-  const fileStats = {
-    "total": 0,
-    "levels": {
-      "INFO": 0,
-      "WARN": 0,
-      "ERROR": 0
-    },
-    "status": {
-      "2xx": 0,
-      "3xx": 0,
-      "4xx": 0,
-      "5xx": 0
-    },
-    "topPaths": [],
-    "avgResponseTimeMs": 0
-  }
-
-  const stream = fs.createReadStream(data.inputPath, { start: data.start, end: data.end })
-
-  const rl = readline.createInterface({
-    input: stream,
-    terminal: false
-  })
-
-  rl.on('line', (line) =>{
-    fileStats.total += 1
-
-    if (line.includes('INFO') || line.includes("WARN") || line.includes("ERROR")){
-      fileStats.levels[line] += 1
+  return new Promise((resolve, reject) => {
+    const data = workerData
+    var fileStats = {
+      "total": 0,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0
+      },
+      "status": {
+        "2xx": 0,
+        "3xx": 0,
+        "4xx": 0,
+        "5xx": 0
+      },
+      "topPaths": [],
+      "avgResponseTimeMs": 0
     }
 
-    fileStats.status[`${Math.floor(parseInt(line.split(' ')[3]/100))}xx`] += 1
+    const stream = fs.createReadStream(data.inputPath, { start: data.start, end: data.end })
 
-    const filePath = line.match(/\s(\/\S*)/)
-    
-    if (filePath){
-      for (let obj of fileStats.topPaths){
-        if (obj.path == filePath){
-          obj.count += 1
-          break;
-        }
-        if (fileStats.topPaths.indexOf(obj) == fileStats.topPaths - 1){
-          fileStats.topPaths.push({"path": filePath, "count": 1})
-        }
-        continue
+    const rl = readline.createInterface({
+      input: stream,
+      terminal: false
+    })
+
+    rl.on('line', (line) =>{
+      fileStats.total += 1
+
+      if (line.includes('INFO')){
+        fileStats.levels['INFO'] += 1
+      }else if (line.includes('WARN')){
+        fileStats.levels['WARN'] += 1
+      }else if (line.includes('ERROR')){
+        fileStats.levels['ERROR'] += 1
       }
-      fileStats.topPaths.push()
-    }
 
-    fileStats.avgResponseTimeMs = line.split(' ')[4]
+      fileStats.status[`${Math.floor(parseInt(line.split(' ')[3]/100))}xx`] += 1
+
+      const pathMatch = line.match(/\s(\/\S*)/);
+      if (pathMatch) {
+        const path = pathMatch[1]; // <--- This is your "it" (the path string)
+        
+        // Find if the path already exists in our stats
+        const existingPath = fileStats.topPaths.find(obj => obj.path === path);
+        
+        if (existingPath) {
+          existingPath.count += 1;
+        } else {
+          fileStats.topPaths.push({ "path": path, "count": 1 });
+        }
+      }
+
+      fileStats.avgResponseTimeMs = line.split(' ')[4]
+    })
+
+    rl.on('close', () => {
+      resolve(fileStats)
+    })
+
+    rl.on('error', reject)
   })
-
-  rl.on('close', () => {
-    parentPort.postMessage(stats);
-  });
 }
 
-await readData()
+const finalStats = await readData()
+// console.log(finalStats)
+parentPort.postMessage(finalStats)

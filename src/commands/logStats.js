@@ -15,7 +15,7 @@ export const readStats = async (commandLine, currentDir) => {
     await fs.access(inputPath)
 
     const buffer = Buffer.alloc(1)
-    const chunkSize = (await fs.stat(inputPath)).size / chunksCount
+    const chunkSize = Math.floor((await fs.stat(inputPath)).size / chunksCount)
     const allWorkersData = []
 
     var startPosition = 0
@@ -25,11 +25,11 @@ export const readStats = async (commandLine, currentDir) => {
 
     for (let worker = 0; worker < chunksCount; worker++){
       if (worker === chunksCount - 1){
-        endPosition = (chunkSize * chunksCount) - 1
+        endPosition = (await fs.stat(inputPath)).size - 1
         //create new Worker, send it start position and end position
       }else{
         while (true) {
-          fileHandle.read(buffer, 0, 1, endPosition)
+          await fileHandle.read(buffer, 0, 1, endPosition)
 
           if (buffer[0] === 10){
             //create new Worker, send it start position and end position
@@ -42,7 +42,7 @@ export const readStats = async (commandLine, currentDir) => {
 
       const workerPromise = new Promise((resolve, reject) => {
         const logWorker = new Worker(
-          "../../workers/logWorker.js",
+          "./workers/logWorker.js",
           { workerData:{
             start: startPosition,
             end: endPosition,
@@ -59,7 +59,7 @@ export const readStats = async (commandLine, currentDir) => {
         });
       })
 
-      allWorkersData.push[workerPromise]
+      allWorkersData.push(workerPromise)
       
       startPosition = ++endPosition
       endPosition += chunkSize
@@ -69,9 +69,44 @@ export const readStats = async (commandLine, currentDir) => {
 
     const finalResults = await Promise.all(allWorkersData)
 
+    console.log(finalResults)
+
     await fileHandle.close()
 
-    //merge all data into a final file
+    const mergedData = {
+      total: 0,
+      levels: { INFO: 0, WARN: 0, ERROR: 0 },
+      status: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 },
+      topPaths: [],
+      avgResponseTimeMs: 0
+    };
+
+    let totalAvgResponseTimeSum = 0;
+
+    for (const p of finalResults) {
+      mergedData.total += p.total;
+
+      mergedData.levels.INFO += p.levels.INFO;
+      mergedData.levels.WARN += p.levels.WARN;
+      mergedData.levels.ERROR += p.levels.ERROR;
+
+      mergedData.status['2xx'] += p.status['2xx'];
+      mergedData.status['3xx'] += p.status['3xx'];
+      mergedData.status['4xx'] += p.status['4xx'];
+      mergedData.status['5xx'] += p.status['5xx'];
+
+      totalAvgResponseTimeSum += p.avgResponseTimeMs;
+      
+      mergedData.topPaths.push(p.topPaths);
+    }
+
+    if (chunksCount > 0) {
+      mergedData.avgResponseTimeMs = (totalAvgResponseTimeSum / chunksCount).toString();
+    }
+
+    const jsonString = JSON.stringify(mergedData, null, 2);
+
+    await fs.writeFile(outputPath, jsonString, 'utf8');
   }catch(err){
     console.log(err)
     console.log('Operation failed')

@@ -14,6 +14,13 @@
         '--password': 'string'
       },
       'flags':{}
+    },
+    'log-stats':{
+      'required':{
+        '--input': 'string',
+        '--output': 'string',
+      },
+      'flags': {}
     }
   }
 
