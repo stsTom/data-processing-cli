@@ -10,6 +10,16 @@
         '--algorithm': 'sha256'
       }
     },
+    'hash-compare':{
+      'required':{
+        '--input': 'string',
+        '--hash': 'string'
+      },
+      'flags':{},
+      'optional':{
+        '--algorithm': 'sha256'
+      }
+    },
     'encrypt':{
       'required':{
         '--input': 'string',

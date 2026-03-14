@@ -7,7 +7,6 @@ import { pipeline } from "stream/promises"
 
 export const calculateHash = async (commandLine, currentDir) => {
   const args = await parseArguments(commandLine)
-  console.log(args)
   const file = await resolvePath(currentDir, args['--input'])
   const algorithm = args['--algorithm']
 
@@ -17,7 +16,7 @@ export const calculateHash = async (commandLine, currentDir) => {
 
     await pipeline(source, hash) 
 
-    const digest = hash.digest('hex')
+    const digest = hash.digest()
 
     if (args['--save']){
       const outputFile = await createWriteStream(`${file}.${algorithm}`)
@@ -27,7 +26,7 @@ export const calculateHash = async (commandLine, currentDir) => {
       console.log('hash: ', digest)
     }
   }catch(err){
-    console.log(err)
+    // console.log(err)
     console.log('Operation failed')
   }
 }

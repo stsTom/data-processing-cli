@@ -4,6 +4,7 @@ import { encrypt } from "./commands/encrypt.js"
 import { decrypt } from "./commands/decrypt.js"
 import { readStats } from "./commands/logStats.js"
 import { calculateHash } from "./commands/hash.js"
+import { compareHashes } from "./commands/hash-compare.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -23,6 +24,9 @@ export const repl = async (homeDirectory) => {
     switch(commandName){
       case 'hash':
         await calculateHash(line, directory)
+        break
+      case 'hash-compare':
+        await compareHashes(line, directory)
         break
       case 'encrypt':
         await encrypt(line, directory)
