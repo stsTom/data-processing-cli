@@ -3,6 +3,7 @@ import { stdin, stdout } from "node:process"
 import { encrypt } from "./commands/encrypt.js"
 import { decrypt } from "./commands/decrypt.js"
 import { readStats } from "./commands/logStats.js"
+import { calculateHash } from "./commands/hash.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -20,6 +21,9 @@ export const repl = async (homeDirectory) => {
   rl.on('line', async (line) => {
     const commandName = line.split(' ')[0]
     switch(commandName){
+      case 'hash':
+        await calculateHash(line, directory)
+        break
       case 'encrypt':
         await encrypt(line, directory)
         break

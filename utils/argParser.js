@@ -1,11 +1,23 @@
   const commandsSchema = {
+    'hash':{
+      'required':{
+        '--input': 'string',
+      },
+      'flags':{
+        '--save': false
+      },
+      'optional':{
+        '--algorithm': 'sha256'
+      }
+    },
     'encrypt':{
       'required':{
         '--input': 'string',
         '--output': 'string',
         '--password': 'string'
       },
-      'flags':{}
+      'flags':{},
+      'optional':{}
     },
     'decrypt':{
       'required':{
@@ -13,14 +25,16 @@
         '--output': 'string',
         '--password': 'string'
       },
-      'flags':{}
+      'flags':{},
+      'optional':{}
     },
     'log-stats':{
       'required':{
         '--input': 'string',
         '--output': 'string',
       },
-      'flags': {}
+      'flags':{},
+      'optional':{}
     }
   }
 
@@ -42,12 +56,20 @@ export const parseArguments = async (commandLine) => {
 
   var result = {}
 
+  for (let option of Object.keys(schema.optional)){
+    result[option] = schema.optional[option]
+  }
+
+  for (let flag of Object.keys(schema.flags)){
+    result[flag] = schema.flags[flag]
+  }
+
   for (let i=0; i < args.length; i++){
     const arg = args.at(i)
     // console.log(arg)
     if (arg.startsWith('--')){
       if (Object.keys(schema.flags).includes(arg)){
-        result.arg = !schema.flags.arg
+        result[arg] = !schema.flags[args]
         continue
       }
       // console.log('next arg ', args.at(i+1))
@@ -60,6 +82,7 @@ export const parseArguments = async (commandLine) => {
 
   Object.keys(schema.required).forEach(key => {
     if (!Object.keys(result).includes(key)){
+      // console.log("doesn't include")
       return
     }
   })
