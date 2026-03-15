@@ -9,6 +9,7 @@ import { convertToJSON } from "./commands/csv-to-json.js"
 import { navigate } from "./commands/cd.js"
 import { movingUp } from "./commands/up.js"
 import { getList } from "./ls.js"
+import { countData } from "./commands/count.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -38,6 +39,9 @@ export const repl = async (homeDirectory) => {
         break
       case 'csv-to-json':
         await convertToJSON(line, directory)
+        break
+      case 'count':
+        await countData(line, directory)
         break
       case 'hash':
         await calculateHash(line, directory)
