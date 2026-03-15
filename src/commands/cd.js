@@ -7,7 +7,13 @@ export const navigate = async (commandLine, currentDir) => {
   var newPath = await resolvePath(currentDir, args.pathToDirectory)
   try{
     await fs.access(newPath)
-  }catch{
+
+    const stats = await fs.stat(newPath)
+    if (stats.isFile()){
+      throw new Error('Operation failed')
+    }
+  }catch(err){
+    console.log(err)
     newPath = currentDir
   }finally{
     return newPath
