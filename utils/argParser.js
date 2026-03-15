@@ -1,15 +1,22 @@
   const commandsSchema = {
+    'cd':{
+      'required':{
+        'pathToDirectory': null
+      },
+      'flags':{},
+      'optional':{}
+    },
     'csv-to-json':{
       'required':{
-        '--input': 'string',
-        '--output': 'string',
+        '--input': null,
+        '--output': null,
       },
       'flags':{},
       'optional':{}
     },
     'hash':{
       'required':{
-        '--input': 'string',
+        '--input': null,
       },
       'flags':{
         '--save': false
@@ -20,8 +27,8 @@
     },
     'hash-compare':{
       'required':{
-        '--input': 'string',
-        '--hash': 'string'
+        '--input': null,
+        '--hash': null
       },
       'flags':{},
       'optional':{
@@ -30,26 +37,26 @@
     },
     'encrypt':{
       'required':{
-        '--input': 'string',
-        '--output': 'string',
-        '--password': 'string'
+        '--input': null,
+        '--output': null,
+        '--password': null
       },
       'flags':{},
       'optional':{}
     },
     'decrypt':{
       'required':{
-        '--input': 'string',
-        '--output': 'string',
-        '--password': 'string'
+        '--input': null,
+        '--output': null,
+        '--password': null
       },
       'flags':{},
       'optional':{}
     },
     'log-stats':{
       'required':{
-        '--input': 'string',
-        '--output': 'string',
+        '--input': null,
+        '--output': null,
       },
       'flags':{},
       'optional':{}
@@ -72,6 +79,7 @@ export const parseArguments = async (commandLine) => {
   // console.log(schema)
 
 
+  // I could've just make result equal schema and then just calculate the path
   var result = {}
 
   for (let option of Object.keys(schema.optional)){
@@ -94,9 +102,16 @@ export const parseArguments = async (commandLine) => {
       result[arg] = args.at(++i)
       continue
     }
-    result.conditionals = arg
+    result.conditionals = []
+    result.conditionals.push(arg)
   }
   // console.log('result ', result)
+
+  if (command === 'cd' && Object.keys(result).includes('conditionals')){
+    if (result.conditionals.length === 1){
+      result.pathToDirectory = result.conditionals[0]
+    }
+  }
 
   Object.keys(schema.required).forEach(key => {
     if (!Object.keys(result).includes(key)){
