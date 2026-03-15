@@ -5,6 +5,7 @@ import { decrypt } from "./commands/decrypt.js"
 import { readStats } from "./commands/logStats.js"
 import { calculateHash } from "./commands/hash.js"
 import { compareHashes } from "./commands/hash-compare.js"
+import { convertToJSON } from "./commands/csv-to-json.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -22,6 +23,9 @@ export const repl = async (homeDirectory) => {
   rl.on('line', async (line) => {
     const commandName = line.split(' ')[0]
     switch(commandName){
+      case 'csv-to-json':
+        await convertToJSON(line, directory)
+        break
       case 'hash':
         await calculateHash(line, directory)
         break

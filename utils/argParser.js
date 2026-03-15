@@ -1,4 +1,12 @@
   const commandsSchema = {
+    'csv-to-json':{
+      'required':{
+        '--input': 'string',
+        '--output': 'string',
+      },
+      'flags':{},
+      'optional':{}
+    },
     'hash':{
       'required':{
         '--input': 'string',
