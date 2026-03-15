@@ -19,6 +19,7 @@ export const repl = async (homeDirectory) => {
     prompt: '> '
   })
 
+
   console.log('Welcome to Data Processing CLI!')
   console.log('You are currently in ', directory)
   rl.prompt()
@@ -33,7 +34,7 @@ export const repl = async (homeDirectory) => {
         directory = await navigate(line, directory)
         break
       case 'ls':
-        getList(directory)
+        await getList(directory)
         break
       case 'csv-to-json':
         await convertToJSON(line, directory)
@@ -59,7 +60,6 @@ export const repl = async (homeDirectory) => {
       default: 
         console.log('Invalid input')
     }
-
     console.log('You are currently in ', directory)
     rl.prompt()
   })
