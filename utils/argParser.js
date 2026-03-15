@@ -14,6 +14,13 @@
       'flags':{},
       'optional':{}
     },
+    'count':{
+      'required':{
+        '--input': null
+      },
+      'optional':{},
+      'flags':{}
+    },
     'hash':{
       'required':{
         '--input': null,
