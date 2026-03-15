@@ -7,6 +7,7 @@ import { calculateHash } from "./commands/hash.js"
 import { compareHashes } from "./commands/hash-compare.js"
 import { convertToJSON } from "./commands/csv-to-json.js"
 import { navigate } from "./commands/cd.js"
+import { movingUp } from "./commands/up.js"
 
 export const repl = async (homeDirectory) => {
   var directory = homeDirectory
@@ -24,6 +25,9 @@ export const repl = async (homeDirectory) => {
   rl.on('line', async (line) => {
     const commandName = line.split(' ')[0]
     switch(commandName){
+      case 'up':
+        directory = movingUp(directory)
+        break
       case 'cd':
         directory = await navigate(line, directory)
         break
